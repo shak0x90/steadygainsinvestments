@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  password     String
+  role         Role          @default(USER)
+  plans        Plan[]
+  totalInvested Float        @default(0)
+  currentValue  Float        @default(0)
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+  holdings     Holding[]
+  invoices     Invoice[]
+}
+
+model Plan {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  minInvestment  Float
+  expectedRoi    String
+  duration       String
+  risk           String
+  description    String
+  features       String[]
+  popular        Boolean  @default(false)
+  active         Boolean  @default(true)
+  color          String   @default("#0a7c42")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  users          User[]
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        TxType
+  amount      Float
+  description String
+  status      TxStatus @default(COMPLETED)
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  invoiceId   Int?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id])
+}
+
+model Holding {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String
+  amount Float
+  roi    Float  @default(0)
+  change String @default("+0.0%")
+  status String @default("active")
+}
+
+model Invoice {
+  id             Int           @id @default(autoincrement())
+  invoiceNumber  String        @unique
+  userId         Int
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month          String
+  year           Int
+  planName       String
+  investedAmount Float
+  roiPercentage  Float
+  returnAmount   Float
+  status         String        @default("PAID")
+  note           String?
+  issuedAt       DateTime      @default(now())
+  transactions   Transaction[]
+}
+
+model SiteContent {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  section   String
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TxType {
+  DEPOSIT
+  RETURN
+  WITHDRAWAL
+}
+
+enum TxStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
