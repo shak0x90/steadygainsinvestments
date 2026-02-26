@@ -71,6 +71,18 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: `Minimum investment for this plan is $${plan.minInvestment}` });
         }
 
+        const existingSubscription = await prisma.userPlan.findUnique({
+            where: {
+                userId_planId: {
+                    userId: req.user.id,
+                    planId: plan.id
+                }
+            }
+        });
+        if (existingSubscription) {
+            return res.status(400).json({ error: `You are already subscribed to the ${plan.name} plan.` });
+        }
+
         // 1. Create the subscription
         await prisma.userPlan.create({
             data: {
