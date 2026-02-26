@@ -3,6 +3,7 @@ import { investmentPlans } from '@/data/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import api from '@/utils/api';
+import toast from 'react-hot-toast';
 
 export default function InvestmentPlans() {
     const { user } = useAuth();
@@ -12,9 +13,12 @@ export default function InvestmentPlans() {
         setSubscribingTo(planName);
         try {
             await api.subscribePlan({ planName });
-            window.location.reload(); // Refresh to pull updated user plans
+            toast.success(`Successfully subscribed to the ${planName} plan!`);
+            setTimeout(() => {
+                window.location.reload(); // Refresh to pull updated user plans
+            }, 1000);
         } catch (err) {
-            alert(err.message || 'Failed to subscribe');
+            toast.error(err.message || 'Failed to subscribe');
             setSubscribingTo(null);
         }
     };

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import LoadingScreen from '@/components/LoadingScreen';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
@@ -55,40 +56,43 @@ function LandingPage() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<DashboardHome />} />
-        <Route path="plans" element={<InvestmentPlans />} />
-        <Route path="portfolio" element={<Portfolio />} />
-        <Route path="transactions" element={<Transactions />} />
-        <Route path="settings" element={<Settings />} />
-      </Route>
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminLayout />
-          </AdminRoute>
-        }
-      >
-        <Route index element={<AdminOverview />} />
-        <Route path="users" element={<AdminUsers />} />
-        <Route path="users/:id" element={<AdminUserDetail />} />
-        <Route path="plans" element={<AdminPlans />} />
-        <Route path="transactions" element={<AdminTransactions />} />
-        <Route path="content" element={<AdminContent />} />
-      </Route>
-    </Routes>
+    <>
+      <Toaster position="top-right" />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<DashboardHome />} />
+          <Route path="plans" element={<InvestmentPlans />} />
+          <Route path="portfolio" element={<Portfolio />} />
+          <Route path="transactions" element={<Transactions />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="users/:id" element={<AdminUserDetail />} />
+          <Route path="plans" element={<AdminPlans />} />
+          <Route path="transactions" element={<AdminTransactions />} />
+          <Route path="content" element={<AdminContent />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 

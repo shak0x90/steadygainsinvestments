@@ -32,7 +32,52 @@ export default function DashboardHome() {
         }).catch(console.error).finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div className="flex justify-center py-20"><div className="animate-spin w-8 h-8 border-3 border-emerald-brand border-t-transparent rounded-full" /></div>;
+    if (loading) {
+        return (
+            <div className="space-y-6 animate-pulse">
+                <div>
+                    <div className="h-8 bg-gray-200 rounded w-64 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-48"></div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="bg-white rounded-xl p-5 border border-border/50 h-32 flex flex-col justify-between">
+                            <div className="w-10 h-10 rounded-lg bg-gray-200"></div>
+                            <div>
+                                <div className="h-3 bg-gray-200 rounded w-20 mb-2 mt-4"></div>
+                                <div className="h-6 bg-gray-200 rounded w-24"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
+                    <div className="bg-white rounded-xl p-6 border border-border/50 h-[360px]">
+                        <div className="flex justify-between mb-6">
+                            <div className="h-6 bg-gray-200 rounded w-32"></div>
+                            <div className="h-4 bg-gray-200 rounded w-12"></div>
+                        </div>
+                        <div className="h-64 bg-gray-100 rounded"></div>
+                    </div>
+                    <div className="bg-white rounded-xl p-6 border border-border/50 h-[360px]">
+                        <div className="flex justify-between mb-6">
+                            <div className="h-6 bg-gray-200 rounded w-32"></div>
+                        </div>
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="flex gap-3 items-center">
+                                    <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0"></div>
+                                    <div className="flex-1 space-y-2">
+                                        <div className="h-4 bg-gray-200 rounded w-full"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     if (!stats) return null;
 
     // We don't have historical chart data in the DB yet, so we'll mock a simple line based on current value for now,
@@ -89,6 +134,18 @@ export default function DashboardHome() {
             bgColor: 'bg-purple-50',
             iconColor: 'text-purple-600',
         },
+        {
+            label: 'Projected Year-End ROI',
+            value: `$${((stats.totalInvested * ((stats.latestRoiPercentage || 0) * 12)) / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            change: `~${((stats.latestRoiPercentage || 0) * 12).toFixed(1)}% APR`,
+            icon: (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+                </svg>
+            ),
+            bgColor: 'bg-teal-50',
+            iconColor: 'text-teal-600',
+        },
     ];
 
     return (
@@ -102,15 +159,15 @@ export default function DashboardHome() {
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {STAT_CARDS.map((card) => (
                     <div key={card.label} className="bg-white rounded-xl p-5 border border-border/50 hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-3">
                             <div className={`w-10 h-10 rounded-lg ${card.bgColor} ${card.iconColor} flex items-center justify-center`}>
                                 {card.icon}
                             </div>
-                            {card.change && card.label === 'Current Value' && stats.lifetimeEarnings > 0 && (
-                                <span className="text-xs text-emerald-brand font-medium bg-emerald-brand/10 px-2 py-0.5 rounded-full">
+                            {card.change && (card.label === 'Current Value' || card.label === 'Projected Year-End ROI') && (
+                                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${card.label === 'Projected Year-End ROI' ? 'text-teal-700 bg-teal-100' : 'text-emerald-brand bg-emerald-brand/10'}`}>
                                     {card.change}
                                 </span>
                             )}
@@ -153,7 +210,16 @@ export default function DashboardHome() {
                     </div>
                     <div className="space-y-3">
                         {recentTx.length === 0 ? (
-                            <p className="text-sm text-charcoal/40 text-center py-4">No recent activity</p>
+                            <div className="text-center py-10">
+                                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <svg className="w-8 h-8 text-emerald-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <p className="text-sm font-medium text-charcoal mb-1">No Activity Yet</p>
+                                <p className="text-xs text-charcoal/50 mb-4">You're ready to start growing your wealth!</p>
+                                <Link to="/dashboard/plans" className="text-xs font-semibold text-emerald-brand bg-emerald-50 px-4 py-2 rounded-full hover:bg-emerald-100 transition-colors inline-block">View Investment Plans</Link>
+                            </div>
                         ) : recentTx.map((tx) => (
                             <div key={tx.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${tx.type === 'DEPOSIT' ? 'bg-blue-50 text-blue-600' :

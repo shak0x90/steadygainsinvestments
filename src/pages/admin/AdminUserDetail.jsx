@@ -4,6 +4,7 @@ import api from '@/utils/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import toast from 'react-hot-toast';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -24,7 +25,6 @@ export default function AdminUserDetail() {
     });
     const [paying, setPaying] = useState(false);
     const [payError, setPayError] = useState('');
-    const [paySuccess, setPaySuccess] = useState('');
 
     // Invoice viewer
     const [viewInvoice, setViewInvoice] = useState(null);
@@ -42,15 +42,15 @@ export default function AdminUserDetail() {
     const handlePayReturn = async () => {
         setPaying(true);
         setPayError('');
-        setPaySuccess('');
         try {
             const invoice = await api.payReturn(id, payForm);
-            setPaySuccess(`✅ Return of $${invoice.returnAmount.toFixed(2)} paid! Invoice: ${invoice.invoiceNumber}`);
+            toast.success(`Return of $${invoice.returnAmount.toFixed(2)} paid! Invoice: ${invoice.invoiceNumber}`);
             setShowPayModal(false);
             setPayForm({ ...payForm, roiPercentage: '', note: '', planName: '' });
             fetchUser(); // refresh data
         } catch (err) {
             setPayError(err.message);
+            toast.error(err.message || 'Failed to issue return');
         } finally {
             setPaying(false);
         }
@@ -78,10 +78,6 @@ export default function AdminUserDetail() {
                     💰 Pay Monthly Return
                 </Button>
             </div>
-
-            {paySuccess && (
-                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm">{paySuccess}</div>
-            )}
 
             {/* User stats cards */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
