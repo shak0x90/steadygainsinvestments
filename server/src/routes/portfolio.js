@@ -22,7 +22,7 @@ router.get('/summary', authMiddleware, async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: req.user.id },
-            select: { totalInvested: true, currentValue: true, plans: true },
+            select: { totalInvested: true, currentValue: true, userPlans: { include: { plan: true } } },
         });
 
         const holdings = await prisma.holding.findMany({
@@ -47,7 +47,7 @@ router.get('/summary', authMiddleware, async (req, res) => {
             activeInvestments: holdings.length,
             lifetimeEarnings: user.currentValue - user.totalInvested,
             holdings,
-            plans: user.plans,
+            userPlans: user.userPlans,
             latestRoiPercentage: latestInvoice ? latestInvoice.roiPercentage : 0,
         });
     } catch (err) {
@@ -59,13 +59,45 @@ router.get('/summary', authMiddleware, async (req, res) => {
 // Subscribe to a new plan
 router.post('/subscribe', authMiddleware, async (req, res) => {
     try {
-        const { planName } = req.body;
+        const { planName, amount, riskLevel } = req.body;
+
+        if (!amount || isNaN(amount) || amount <= 0) return res.status(400).json({ error: 'Valid investment amount is required' });
+        if (!['Low', 'Medium', 'High'].includes(riskLevel)) return res.status(400).json({ error: 'Valid risk level (Low, Medium, High) is required' });
+
         const plan = await prisma.plan.findUnique({ where: { name: planName } });
         if (!plan) return res.status(404).json({ error: 'Plan not found' });
 
+        if (amount < plan.minInvestment) {
+            return res.status(400).json({ error: `Minimum investment for this plan is $${plan.minInvestment}` });
+        }
+
+        // 1. Create the subscription
+        await prisma.userPlan.create({
+            data: {
+                userId: req.user.id,
+                planId: plan.id,
+                amount: parseFloat(amount),
+                riskLevel: riskLevel
+            }
+        });
+
+        // 2. Increment user balances
         await prisma.user.update({
             where: { id: req.user.id },
-            data: { plans: { connect: { id: plan.id } } },
+            data: {
+                totalInvested: { increment: parseFloat(amount) },
+                currentValue: { increment: parseFloat(amount) }
+            },
+        });
+
+        // 3. Log the deposit transaction
+        await prisma.transaction.create({
+            data: {
+                userId: req.user.id,
+                type: 'DEPOSIT',
+                amount: parseFloat(amount),
+                description: `Investment - ${plan.name} Plan (${riskLevel} Risk)`
+            }
         });
 
         res.json({ success: true, message: `Successfully subscribed to ${plan.name} plan.` });

@@ -80,7 +80,11 @@ async function seed() {
             email: 'admin@steadygains.com',
             password: adminPassword,
             role: 'ADMIN',
-            plans: { connect: { id: plans[1].id } },
+            userPlans: {
+                create: [
+                    { planId: plans[1].id, amount: 5000, riskLevel: 'Medium' }
+                ]
+            },
             totalInvested: 10000,
             currentValue: 14500,
         },
@@ -94,7 +98,11 @@ async function seed() {
             email: 'demo@steadygains.com',
             password: demoPassword,
             role: 'USER',
-            plans: { connect: { id: plans[1].id } },
+            userPlans: {
+                create: [
+                    { planId: plans[1].id, amount: 2500, riskLevel: 'Medium' }
+                ]
+            },
             totalInvested: 2500,
             currentValue: 3120,
         },
@@ -108,7 +116,11 @@ async function seed() {
             email: 'sarah@example.com',
             password: user2Pass,
             role: 'USER',
-            plans: { connect: { id: plans[0].id } },
+            userPlans: {
+                create: [
+                    { planId: plans[0].id, amount: 500, riskLevel: 'Low' }
+                ]
+            },
             totalInvested: 500,
             currentValue: 545,
         },

@@ -2,24 +2,41 @@ import { useState } from 'react';
 import { investmentPlans } from '@/data/mockData';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import api from '@/utils/api';
 import toast from 'react-hot-toast';
 
 export default function InvestmentPlans() {
     const { user } = useAuth();
-    const [subscribingTo, setSubscribingTo] = useState(null);
+    const [subscribingTo, setSubscribingTo] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState(null);
+    const [form, setForm] = useState({ amount: '', riskLevel: 'Medium' });
 
-    const handleSubscribe = async (planName) => {
-        setSubscribingTo(planName);
+    const handleOpenModal = (plan) => {
+        setSelectedPlan(plan);
+        setForm({ amount: plan.minInvestment, riskLevel: 'Medium' });
+    };
+
+    const handleSubscribeConfirm = async () => {
+        if (!form.amount || form.amount < selectedPlan.minInvestment) {
+            return toast.error(`Minimum investment is $${selectedPlan.minInvestment}`);
+        }
+
+        setSubscribingTo(true);
         try {
-            await api.subscribePlan({ planName });
-            toast.success(`Successfully subscribed to the ${planName} plan!`);
+            await api.subscribePlan({
+                planName: selectedPlan.name,
+                amount: parseFloat(form.amount),
+                riskLevel: form.riskLevel
+            });
+            toast.success(`Successfully subscribed for $${form.amount} at ${form.riskLevel} risk!`);
+            setSelectedPlan(null);
             setTimeout(() => {
-                window.location.reload(); // Refresh to pull updated user plans
+                window.location.reload();
             }, 1000);
         } catch (err) {
             toast.error(err.message || 'Failed to subscribe');
-            setSubscribingTo(null);
+            setSubscribingTo(false);
         }
     };
 
@@ -32,7 +49,7 @@ export default function InvestmentPlans() {
 
             <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
                 {investmentPlans.map((plan) => {
-                    const isActive = user?.plans?.some(p => p.name?.toLowerCase() === plan.id) || false;
+                    const isActive = user?.userPlans?.some(up => up.plan?.name?.toLowerCase() === plan.id) || false;
                     return (
                         <div
                             key={plan.id}
@@ -97,19 +114,74 @@ export default function InvestmentPlans() {
                             </ul>
 
                             <Button
-                                onClick={() => handleSubscribe(plan.name)}
+                                onClick={() => handleOpenModal(plan)}
                                 className={`w-full rounded-lg text-sm ${isActive
                                     ? 'bg-emerald-50 text-emerald-brand border border-emerald-brand/30 hover:bg-emerald-100 cursor-default'
                                     : 'bg-emerald-brand hover:bg-emerald-dark text-white'
                                     }`}
-                                disabled={isActive || subscribingTo === plan.name}
+                                disabled={isActive}
                             >
-                                {subscribingTo === plan.name ? 'Subscribing...' : isActive ? 'Subscribed' : 'Subscribe'}
+                                {isActive ? 'Subscribed' : 'Subscribe'}
                             </Button>
                         </div>
                     );
                 })}
             </div>
+
+            {/* Custom Subscription Modal */}
+            {selectedPlan && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedPlan(null)}>
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: selectedPlan.color + '15', color: selectedPlan.color }}>
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div>
+                                <h2 className="font-display text-xl font-bold text-charcoal">{selectedPlan.name} Plan</h2>
+                                <p className="text-xs text-charcoal/50">Configure your investment</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 my-6">
+                            <div>
+                                <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider font-semibold">Investment Amount ($)</label>
+                                <Input
+                                    type="number"
+                                    value={form.amount}
+                                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                                    min={selectedPlan.minInvestment}
+                                    placeholder={`Min: $${selectedPlan.minInvestment}`}
+                                    className="text-lg font-medium"
+                                />
+                                <p className="text-xs text-emerald-brand mt-1 flex justify-between">
+                                    <span>Minimum: ${selectedPlan.minInvestment.toLocaleString()}</span>
+                                    <span>Recommended: ${(selectedPlan.minInvestment * 2).toLocaleString()}</span>
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider font-semibold">Risk Strategy</label>
+                                <select
+                                    value={form.riskLevel}
+                                    onChange={(e) => setForm({ ...form, riskLevel: e.target.value })}
+                                    className="w-full px-3 py-2.5 border rounded-lg text-sm bg-white font-medium text-charcoal focus:ring-2 focus:ring-emerald-brand"
+                                >
+                                    <option value="Low">Low Risk — Steady & Reliable (Lower ROI)</option>
+                                    <option value="Medium">Medium Risk — Balanced Growth (Standard ROI)</option>
+                                    <option value="High">High Risk — Aggressive Growth (Higher ROI, High Variance)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-8">
+                            <Button variant="outline" onClick={() => setSelectedPlan(null)} disabled={subscribingTo}>Cancel</Button>
+                            <Button onClick={handleSubscribeConfirm} className="bg-emerald-brand hover:bg-emerald-dark text-white shadow-lg" disabled={subscribingTo}>
+                                {subscribingTo ? 'Processing...' : 'Confirm Subscription'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

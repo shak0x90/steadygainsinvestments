@@ -11,7 +11,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
             select: {
                 id: true, name: true, email: true, role: true,
                 totalInvested: true, currentValue: true, active: true,
-                createdAt: true, plans: { select: { id: true, name: true } },
+                createdAt: true, userPlans: { include: { plan: { select: { id: true, name: true } } } },
                 _count: { select: { transactions: true } },
             },
             orderBy: { createdAt: 'desc' },
@@ -68,7 +68,7 @@ router.get('/:id', authMiddleware, adminMiddleware, async (req, res) => {
             select: {
                 id: true, name: true, email: true, role: true,
                 totalInvested: true, currentValue: true, active: true,
-                createdAt: true, plans: true, holdings: true,
+                createdAt: true, userPlans: { include: { plan: true } }, holdings: true,
                 transactions: { orderBy: { date: 'desc' } },
                 invoices: { orderBy: { issuedAt: 'desc' } },
             },
@@ -91,14 +91,13 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
                 ...(email && { email }),
                 ...(role && { role }),
                 ...(active !== undefined && { active }),
-                ...(planIds !== undefined && { plans: { set: planIds.map(id => ({ id })) } }),
                 ...(totalInvested !== undefined && { totalInvested: parseFloat(totalInvested) }),
                 ...(currentValue !== undefined && { currentValue: parseFloat(currentValue) }),
             },
             select: {
                 id: true, name: true, email: true, role: true,
                 totalInvested: true, currentValue: true, active: true,
-                plans: { select: { id: true, name: true } },
+                userPlans: { include: { plan: { select: { id: true, name: true } } } },
             },
         });
         res.json(user);
@@ -117,12 +116,15 @@ router.post('/:id/pay-return', authMiddleware, adminMiddleware, async (req, res)
         // Fetch user with plans
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            include: { plans: true },
+            include: { userPlans: { include: { plan: true } } },
         });
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        // Calculate return amount
-        const returnAmount = parseFloat(((user.totalInvested * roiPercentage) / 100).toFixed(2));
+        const activeUserPlan = user.userPlans.find(up => up.plan.name === planName);
+        if (!activeUserPlan) return res.status(400).json({ error: `User is not subscribed to ${planName} plan.` });
+
+        // Calculate return amount against the exact plan investment
+        const returnAmount = parseFloat(((activeUserPlan.amount * roiPercentage) / 100).toFixed(2));
 
         // Generate invoice number: INV-YYYY-MM-USERID-RANDOM
         const invoiceNumber = `INV-${year}-${String(month).padStart(2, '0')}-${userId}-${Date.now().toString(36).toUpperCase()}`;
@@ -144,8 +146,8 @@ router.post('/:id/pay-return', authMiddleware, adminMiddleware, async (req, res)
                     userId,
                     month: String(month),
                     year: parseInt(year),
-                    planName: planName || 'N/A',
-                    investedAmount: user.totalInvested,
+                    planName: activeUserPlan.plan.name,
+                    investedAmount: activeUserPlan.amount,
                     roiPercentage: parseFloat(roiPercentage),
                     returnAmount,
                     status: 'PAID',

@@ -35,8 +35,9 @@ export default function AdminUserDetail() {
 
     useEffect(() => { fetchUser(); }, [id]);
 
+    const selectedAmount = payForm.planName ? user?.userPlans?.find(up => up.plan.name === payForm.planName)?.amount || 0 : user?.totalInvested || 0;
     const calculatedReturn = user && payForm.roiPercentage
-        ? ((user.totalInvested * parseFloat(payForm.roiPercentage)) / 100).toFixed(2)
+        ? ((selectedAmount * parseFloat(payForm.roiPercentage)) / 100).toFixed(2)
         : '0.00';
 
     const handlePayReturn = async () => {
@@ -82,7 +83,7 @@ export default function AdminUserDetail() {
             {/* User stats cards */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 {[
-                    { label: 'Active Plans', value: user.plans?.length || '0', color: 'text-charcoal' },
+                    { label: 'Active Plans', value: user.userPlans?.length || '0', color: 'text-charcoal' },
                     { label: 'Total Invested', value: `$${user.totalInvested.toLocaleString()}`, color: 'text-blue-600' },
                     { label: 'Current Value', value: `$${user.currentValue.toLocaleString()}`, color: 'text-emerald-600' },
                     { label: 'Total ROI', value: `${roi}%`, color: 'text-amber-600' },
@@ -97,36 +98,39 @@ export default function AdminUserDetail() {
 
             {/* Plan details card */}
             {/* Plan details cards */}
-            {user.plans?.length > 0 && (
+            {user.userPlans?.length > 0 && (
                 <div className="grid md:grid-cols-2 gap-4">
-                    {user.plans.map(p => (
-                        <div key={p.id} className="bg-white rounded-xl p-5 border border-border/50">
-                            <h3 className="font-display font-semibold text-charcoal mb-3 flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color || '#0a7c42' }} />
-                                {p.name} Plan
-                            </h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-xs text-charcoal/40">Min Investment</p>
-                                    <p className="font-semibold text-sm">${p.minInvestment?.toLocaleString()}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-charcoal/40">Expected ROI</p>
-                                    <p className="font-semibold text-sm text-emerald-brand">{p.expectedRoi}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-charcoal/40">Duration</p>
-                                    <p className="font-semibold text-sm">{p.duration}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-charcoal/40">Risk Level</p>
-                                    <p className={`font-semibold text-sm ${p.risk === 'Low' ? 'text-blue-600' :
-                                        p.risk === 'Medium' ? 'text-amber-600' : 'text-red-600'
-                                        }`}>{p.risk}</p>
+                    {user.userPlans.map(up => {
+                        const p = up.plan;
+                        return (
+                            <div key={up.id} className="bg-white rounded-xl p-5 border border-border/50">
+                                <h3 className="font-display font-semibold text-charcoal mb-3 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color || '#0a7c42' }} />
+                                    {p.name} Plan
+                                </h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-xs text-charcoal/40">Invested Amount</p>
+                                        <p className="font-semibold text-sm">${up.amount?.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-charcoal/40">Expected ROI</p>
+                                        <p className="font-semibold text-sm text-emerald-brand">{p.expectedRoi}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-charcoal/40">Duration</p>
+                                        <p className="font-semibold text-sm">{p.duration}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-charcoal/40">Risk Level Strategy</p>
+                                        <p className={`font-semibold text-sm ${up.riskLevel === 'Low' ? 'text-blue-600' :
+                                            up.riskLevel === 'Medium' ? 'text-amber-600' : 'text-red-600'
+                                            }`}>{up.riskLevel}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
 
@@ -219,12 +223,12 @@ export default function AdminUserDetail() {
                                     className="w-full px-3 py-2 border rounded-lg text-sm bg-white"
                                 >
                                     <option value="">Select Plan...</option>
-                                    {user.plans?.map(p => <option key={p.id} value={p.name}>{p.name} ({p.expectedRoi})</option>)}
+                                    {user.userPlans?.map(up => <option key={up.plan.id} value={up.plan.name}>{up.plan.name} (${up.amount.toLocaleString()} — {up.riskLevel} Risk)</option>)}
                                 </select>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span className="text-charcoal/50">Invested Amount</span>
-                                <span className="font-semibold">${user.totalInvested.toLocaleString()}</span>
+                                <span className="text-charcoal/50">Base Amount used for ROI</span>
+                                <span className="font-semibold">${selectedAmount.toLocaleString()}</span>
                             </div>
                         </div>
 

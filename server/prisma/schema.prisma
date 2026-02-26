@@ -13,7 +13,7 @@ model User {
   email        String        @unique
   password     String
   role         Role          @default(USER)
-  plans        Plan[]
+  userPlans    UserPlan[]
   totalInvested Float        @default(0)
   currentValue  Float        @default(0)
   active       Boolean       @default(true)
@@ -38,7 +38,21 @@ model Plan {
   color          String   @default("#0a7c42")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  users          User[]
+  userPlans      UserPlan[]
+}
+
+model UserPlan {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  planId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan          Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  amount        Float    // Dynamic amount user invested into this specific plan
+  riskLevel     String   // Low, Medium, High
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  
+  @@unique([userId, planId])
 }
 
 model Transaction {
