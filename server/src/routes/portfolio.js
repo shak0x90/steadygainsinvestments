@@ -34,6 +34,12 @@ router.get('/summary', authMiddleware, async (req, res) => {
             ? ((user.currentValue - user.totalInvested) / user.totalInvested * 100).toFixed(1)
             : 0;
 
+        // Fetch the user's latest ROI percentage to calculate projected year-end returns
+        const latestInvoice = await prisma.invoice.findFirst({
+            where: { userId: req.user.id, status: 'PAID' },
+            orderBy: { issuedAt: 'desc' },
+        });
+
         res.json({
             totalInvested: user.totalInvested,
             currentValue: user.currentValue,
@@ -42,6 +48,7 @@ router.get('/summary', authMiddleware, async (req, res) => {
             lifetimeEarnings: user.currentValue - user.totalInvested,
             holdings,
             plans: user.plans,
+            latestRoiPercentage: latestInvoice ? latestInvoice.roiPercentage : 0,
         });
     } catch (err) {
         console.error('Get portfolio summary error:', err);
