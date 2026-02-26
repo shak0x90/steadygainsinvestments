@@ -13,6 +13,7 @@ const FOOTER_LINKS = [
             { label: 'Track Record', href: '#track-record' },
             { label: 'Team', href: '#team' },
             { label: 'News', href: '#news' },
+            { label: 'Terms & Conditions', href: '/terms' },
         ],
     },
     {
@@ -140,15 +141,43 @@ export default function ContactFooter() {
             {/* Footer */}
             <footer className="bg-charcoal py-16">
                 <div className="max-w-7xl mx-auto px-6 lg:px-10">
-                    <div className="grid md:grid-cols-[2fr_1fr_1fr] gap-12">
-                        {/* Logo & description */}
+                    <div className="grid sm:grid-cols-2 md:grid-cols-[2fr_1fr_1fr] gap-12 lg:gap-24 mb-16">
+                        {/* Brand column & Logo description */}
                         <div>
                             <div className="flex items-center gap-2.5 mb-4">
-                                <div className="w-8 h-8 rounded-lg bg-emerald-brand flex items-center justify-center">
-                                    <svg viewBox="0 0 100 100" className="w-4 h-4">
-                                        <path d="M50 5 L90 20 L90 50 Q90 85 50 95 Q10 85 10 50 L10 20 Z" fill="white" opacity="0.3" />
-                                        <path d="M30 65 L45 45 L55 55 L70 35" stroke="white" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M60 35 L70 35 L70 45" stroke="white" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+                                    <svg viewBox="0 0 500 500" className="w-10 h-10">
+                                        <defs>
+                                            <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#1b253d" />
+                                                <stop offset="100%" stopColor="#12192b" />
+                                            </linearGradient>
+                                            <linearGradient id="greenArrow" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stopColor="#8bc34a" />
+                                                <stop offset="100%" stopColor="#689f38" />
+                                            </linearGradient>
+                                            <linearGradient id="lightBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#00e5ff" />
+                                                <stop offset="100%" stopColor="#00838f" />
+                                            </linearGradient>
+                                            <linearGradient id="midBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#00b4d8" />
+                                                <stop offset="100%" stopColor="#0077b6" />
+                                            </linearGradient>
+                                            <linearGradient id="darkBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#2a437c" />
+                                                <stop offset="100%" stopColor="#152238" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle cx="250" cy="250" r="230" fill="url(#bgGrad)" />
+                                        <path d="M 250 80 L 350 140 L 320 140 L 320 170 L 250 135 L 180 170 L 180 140 L 150 140 Z" fill="url(#greenArrow)" />
+                                        <text x="250" y="132" fontFamily="Arial, Helvetica, sans-serif" fontSize="36" fontWeight="bold" fill="#ffffff" textAnchor="middle">$</text>
+                                        <path d="M 150 170 L 150 250 L 250 310 L 250 240 L 190 200 Z" fill="url(#darkBlue)" />
+                                        <path d="M 350 170 L 350 260 L 250 320 L 250 260 L 310 220 Z" fill="url(#midBlue)" />
+                                        <path d="M 160 205 C 190 180, 220 170, 250 190 C 280 210, 310 200, 340 180 L 300 225 C 270 250, 240 250, 200 225 Z" fill="url(#lightBlue)" />
+                                        <path d="M 250 320 L 160 265 L 250 200 L 340 265 Z" fill="url(#midBlue)" opacity="0.8" />
+                                        <path d="M 250 320 L 200 290 L 270 230 L 320 260 Z" fill="url(#lightBlue)" />
+                                        <path d="M 280 300 L 240 275 L 290 235 L 330 260 Z" fill="#00e5ff" opacity="0.5" />
                                     </svg>
                                 </div>
                                 <div>
@@ -168,12 +197,15 @@ export default function ContactFooter() {
                                 <ul className="space-y-2.5">
                                     {col.links.map((link) => (
                                         <li key={link.label}>
-                                            <a
-                                                href={link.href}
-                                                className="text-white/40 text-sm hover:text-emerald-light transition-colors duration-300"
-                                            >
-                                                {link.label}
-                                            </a>
+                                            {link.href.startsWith('/') ? (
+                                                <a href={link.href} className="text-white/40 text-sm hover:text-emerald-light transition-colors duration-300">
+                                                    {link.label}
+                                                </a>
+                                            ) : (
+                                                <a href={link.href} className="text-white/40 text-sm hover:text-emerald-light transition-colors duration-300">
+                                                    {link.label}
+                                                </a>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>
@@ -182,8 +214,8 @@ export default function ContactFooter() {
                     </div>
 
                     {/* Bottom bar */}
-                    <div className="mt-12 pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-                        <p className="text-white/30 text-xs">
+                    <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-center sm:justify-between gap-4">
+                        <p className="text-white/40 text-sm">
                             © {new Date().getFullYear()} Steady Gains Investments. All rights reserved.
                         </p>
                         <div className="flex gap-4">

@@ -41,7 +41,7 @@ export default function About() {
 
             <div className="max-w-7xl mx-auto px-6 lg:px-10">
                 {/* Top section */}
-                <div ref={ref} className="grid lg:grid-cols-2 gap-16 items-center mb-24">
+                <div ref={ref} className="grid lg:grid-cols-2 gap-16 items-center mb-12 lg:mb-24">
                     {/* Left text */}
                     <div className={`animate-fade-up ${isVisible ? 'visible' : ''}`}>
                         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-charcoal leading-tight mb-6">
@@ -79,7 +79,7 @@ export default function About() {
                             <img
                                 src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&q=80"
                                 alt="Savings growing over time"
-                                className="absolute -bottom-8 -right-6 w-40 h-48 object-cover rounded-lg shadow-xl border-4 border-white"
+                                className="hidden sm:block absolute -bottom-8 -right-6 w-40 h-48 object-cover rounded-lg shadow-xl border-4 border-white"
                             />
                         </div>
                     </div>

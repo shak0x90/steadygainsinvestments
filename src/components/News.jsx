@@ -39,17 +39,16 @@ export default function News() {
         <section id="news" className="py-24 lg:py-32 bg-cream relative overflow-hidden">
             <div ref={ref} className="max-w-7xl mx-auto px-6 lg:px-10">
                 <div className="flex items-start justify-between mb-12 flex-wrap gap-6">
-                    <div className={`animate-fade-up ${isVisible ? 'visible' : ''}`}>
+                    <div className={`animate-fade-up ${isVisible ? 'visible' : ''} max-w-full`}>
                         <p className="text-xs text-emerald-brand tracking-wider uppercase font-medium mb-2">Category of News</p>
-                        <div className="flex gap-6 flex-wrap">
+                        <div className="flex gap-6 flex-nowrap overflow-x-auto pb-2 scrollbar-hide">
                             {TABS.map((tab, i) => (
                                 <button
                                     key={tab}
                                     className={`text-sm pb-1 transition-colors duration-300 ${i === 0
-                                            ? 'text-charcoal font-semibold border-b-2 border-charcoal'
-                                            : 'text-charcoal/40 hover:text-charcoal/70'
-                                        }`}
-                                >
+                                        ? 'text-charcoal font-semibold border-b-2 border-charcoal'
+                                        : 'text-charcoal/40 hover:text-charcoal/70'
+                                        } whitespace-nowrap`}>
                                     {tab}
                                 </button>
                             ))}
@@ -89,7 +88,7 @@ export default function News() {
                             <img
                                 src={featured.image}
                                 alt={featured.title}
-                                className="w-full h-72 object-cover rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                                className="w-full h-48 sm:h-72 object-cover rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
                             />
                         </div>
                     )}

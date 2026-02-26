@@ -43,7 +43,7 @@ export default function TrackRecord() {
                     </svg>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-px bg-white/10 rounded-xl overflow-hidden">
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-px bg-white/10 rounded-xl overflow-hidden">
                     {STATS.map((group, gi) => (
                         <div key={group.category} className={`bg-charcoal-light p-8 lg:p-10 animate-fade-up stagger-${gi + 2} ${isVisible ? 'visible' : ''}`}>
                             <p className="text-xs text-white/40 tracking-wider uppercase mb-6 font-medium">

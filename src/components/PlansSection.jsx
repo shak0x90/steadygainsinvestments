@@ -28,13 +28,13 @@ export default function PlansSection() {
                 </div>
 
                 {/* Plans Grid */}
-                <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+                <div className="grid sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     {investmentPlans.map((plan, i) => (
                         <div
                             key={plan.id}
-                            className={`animate-fade-up stagger-${i + 1} ${isVisible ? 'visible' : ''} relative bg-white rounded-2xl border-2 p-7 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${plan.popular
-                                    ? 'border-emerald-brand shadow-lg shadow-emerald-brand/10'
-                                    : 'border-border/50 hover:border-emerald-brand/30'
+                            className={`animate-fade-up stagger-${i + 1} ${isVisible ? 'visible' : ''} relative bg-white rounded-2xl border-2 p-5 sm:p-7 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${plan.popular
+                                ? 'border-emerald-brand shadow-lg shadow-emerald-brand/10'
+                                : 'border-border/50 hover:border-emerald-brand/30'
                                 }`}
                         >
                             {/* Most Popular badge */}
@@ -79,8 +79,8 @@ export default function PlansSection() {
                                 <div className="flex justify-between text-sm">
                                     <span className="text-charcoal/50">Risk Level</span>
                                     <span className={`font-semibold ${plan.risk === 'Low' ? 'text-blue-600' :
-                                            plan.risk === 'Medium' ? 'text-amber-600' :
-                                                plan.risk === 'Medium-High' ? 'text-orange-600' : 'text-red-600'
+                                        plan.risk === 'Medium' ? 'text-amber-600' :
+                                            plan.risk === 'Medium-High' ? 'text-orange-600' : 'text-red-600'
                                         }`}>{plan.risk}</span>
                                 </div>
                             </div>
@@ -100,8 +100,8 @@ export default function PlansSection() {
                             <Button
                                 asChild
                                 className={`w-full rounded-xl text-sm py-5 transition-all duration-300 ${plan.popular
-                                        ? 'bg-emerald-brand hover:bg-emerald-dark text-white shadow-md shadow-emerald-brand/20 hover:-translate-y-0.5'
-                                        : 'bg-charcoal hover:bg-charcoal-light text-white'
+                                    ? 'bg-emerald-brand hover:bg-emerald-dark text-white shadow-md shadow-emerald-brand/20 hover:-translate-y-0.5'
+                                    : 'bg-charcoal hover:bg-charcoal-light text-white'
                                     }`}
                             >
                                 <Link to="/signup">Get Started</Link>

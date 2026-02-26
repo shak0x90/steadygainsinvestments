@@ -10,7 +10,7 @@ export default function Hero() {
             <div className="absolute top-20 right-0 w-96 h-96 bg-emerald-brand/5 rounded-full blur-3xl" />
             <div className="absolute bottom-10 left-10 w-64 h-64 bg-gold-brand/5 rounded-full blur-3xl" />
 
-            <div ref={ref} className="max-w-7xl mx-auto px-6 lg:px-10 pt-28 pb-20 w-full">
+            <div ref={ref} className="max-w-7xl mx-auto px-6 lg:px-10 pt-24 sm:pt-28 pb-20 w-full">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                     {/* Left content */}
                     <div className={`animate-fade-up ${isVisible ? 'visible' : ''}`}>
@@ -60,7 +60,7 @@ export default function Hero() {
                         </div>
 
                         {/* Mini stats */}
-                        <div className={`mt-14 flex gap-10 animate-fade-up stagger-3 ${isVisible ? 'visible' : ''}`}>
+                        <div className={`mt-14 flex flex-wrap gap-6 sm:gap-10 animate-fade-up stagger-3 ${isVisible ? 'visible' : ''}`}>
                             {[
                                 { value: '50K+', label: 'Happy Investors' },
                                 { value: '$100', label: 'Min. Investment' },
@@ -80,12 +80,12 @@ export default function Hero() {
                             <img
                                 src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80"
                                 alt="Diverse group of people planning their financial future"
-                                className="w-full h-[500px] object-cover"
+                                className="w-full h-64 sm:h-80 lg:h-[500px] object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-transparent to-transparent" />
                         </div>
                         {/* Floating accent card */}
-                        <div className="absolute -bottom-6 -left-6 bg-white rounded-xl p-5 shadow-xl border border-border/50">
+                        <div className="mt-4 sm:absolute sm:-bottom-6 sm:-left-6 bg-white rounded-xl p-5 shadow-xl border border-border/50">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-emerald-brand/10 flex items-center justify-center">
                                     <svg className="w-5 h-5 text-emerald-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

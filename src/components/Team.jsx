@@ -33,7 +33,7 @@ export default function Team() {
     return (
         <section id="team" className="py-24 lg:py-32 bg-charcoal relative overflow-hidden">
             <div ref={ref} className="max-w-7xl mx-auto px-6 lg:px-10">
-                <div className="grid lg:grid-cols-[1fr_2fr] gap-16 items-start">
+                <div className="grid lg:grid-cols-[1fr_2fr] gap-8 lg:gap-16 items-start">
                     {/* Left text */}
                     <div className={`animate-fade-up ${isVisible ? 'visible' : ''} lg:sticky lg:top-32`}>
                         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-6">
@@ -63,7 +63,7 @@ export default function Team() {
                                 <img
                                     src={member.image}
                                     alt={member.name}
-                                    className="w-full h-72 object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                                    className="w-full h-56 sm:h-72 object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                                 />
                                 {/* Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />

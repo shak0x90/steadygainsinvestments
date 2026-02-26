@@ -102,6 +102,11 @@ export default function AdminUserDetail() {
                 <div className="grid md:grid-cols-2 gap-4">
                     {user.userPlans.map(up => {
                         const p = up.plan;
+
+                        // Determine which ROI applies based on the active risk level
+                        const currentRoi = up.riskLevel === 'Low' ? p.roiLow :
+                            up.riskLevel === 'Medium' ? p.roiMedium : p.roiHigh;
+
                         return (
                             <div key={up.id} className="bg-white rounded-xl p-5 border border-border/50">
                                 <h3 className="font-display font-semibold text-charcoal mb-3 flex items-center gap-2">
@@ -114,20 +119,34 @@ export default function AdminUserDetail() {
                                         <p className="font-semibold text-sm">${up.amount?.toLocaleString()}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-charcoal/40">Expected ROI</p>
-                                        <p className="font-semibold text-sm text-emerald-brand">{p.expectedRoi}</p>
+                                        <p className="text-xs text-charcoal/40">Target ROI</p>
+                                        <p className="font-semibold text-sm text-emerald-brand">{currentRoi}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-charcoal/40">Duration</p>
                                         <p className="font-semibold text-sm">{p.duration}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-charcoal/40">Risk Level Strategy</p>
+                                        <p className="text-xs text-charcoal/40">Risk Strategy</p>
                                         <p className={`font-semibold text-sm ${up.riskLevel === 'Low' ? 'text-blue-600' :
                                             up.riskLevel === 'Medium' ? 'text-amber-600' : 'text-red-600'
                                             }`}>{up.riskLevel}</p>
                                     </div>
                                 </div>
+                                {(up.pendingAmount || up.pendingRiskLevel) && (
+                                    <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Pending Modifications</span>
+                                        </div>
+                                        <p className="text-xs text-amber-700 leading-relaxed font-medium">
+                                            Changes queued for next payout cycle:<br />
+                                            {up.pendingAmount ? `Amount: $${up.pendingAmount.toLocaleString()}` : ''}
+                                            {up.pendingAmount && up.pendingRiskLevel ? ' | ' : ''}
+                                            {up.pendingRiskLevel ? `Strategy: ${up.pendingRiskLevel} Risk` : ''}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         )
                     })}

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-const emptyPlan = { name: '', minInvestment: 100, expectedRoi: '', duration: '', risk: 'Low', description: '', features: [''], popular: false, color: '#0a7c42' };
+const emptyPlan = { name: '', minInvestment: 100, roiLow: '5-8%', roiMedium: '8-12%', roiHigh: '12-18%', duration: '', description: '', features: [''], popular: false, color: '#0a7c42' };
 
 export default function AdminPlans() {
     const [plans, setPlans] = useState([]);
@@ -79,21 +79,20 @@ export default function AdminPlans() {
                             <Input type="number" value={form.minInvestment} onChange={(e) => setForm({ ...form, minInvestment: e.target.value })} className="rounded-lg" />
                         </div>
                         <div>
-                            <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">Expected ROI</label>
-                            <Input value={form.expectedRoi} onChange={(e) => setForm({ ...form, expectedRoi: e.target.value })} placeholder="e.g. 10-15%" className="rounded-lg" />
+                            <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">ROI (Low Risk)</label>
+                            <Input value={form.roiLow} onChange={(e) => setForm({ ...form, roiLow: e.target.value })} placeholder="e.g. 5-8%" className="rounded-lg" />
+                        </div>
+                        <div>
+                            <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">ROI (Medium Risk)</label>
+                            <Input value={form.roiMedium} onChange={(e) => setForm({ ...form, roiMedium: e.target.value })} placeholder="e.g. 8-12%" className="rounded-lg" />
+                        </div>
+                        <div>
+                            <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">ROI (High Risk)</label>
+                            <Input value={form.roiHigh} onChange={(e) => setForm({ ...form, roiHigh: e.target.value })} placeholder="e.g. 12-18%" className="rounded-lg" />
                         </div>
                         <div>
                             <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">Duration</label>
                             <Input value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="e.g. 12 months" className="rounded-lg" />
-                        </div>
-                        <div>
-                            <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">Risk Level</label>
-                            <select value={form.risk} onChange={(e) => setForm({ ...form, risk: e.target.value })} className="w-full px-3 py-2 border rounded-lg text-sm">
-                                <option>Low</option>
-                                <option>Medium</option>
-                                <option>Medium-High</option>
-                                <option>High</option>
-                            </select>
                         </div>
                         <div>
                             <label className="text-xs text-charcoal/50 mb-1 block uppercase tracking-wider">Color</label>
@@ -135,7 +134,21 @@ export default function AdminPlans() {
                             <div className="w-full h-full flex items-center justify-center text-sm font-bold">{plan.name[0]}</div>
                         </div>
                         <h3 className="font-display font-bold text-lg text-charcoal">{plan.name}</h3>
-                        <p className="text-charcoal/50 text-xs mb-3">${plan.minInvestment.toLocaleString()} min · {plan.expectedRoi} ROI · {plan.risk}</p>
+                        <p className="text-charcoal/50 text-xs mb-3">${plan.minInvestment.toLocaleString()} min</p>
+                        <div className="grid grid-cols-3 gap-2 mb-3">
+                            <div className="bg-gray-50 border border-gray-100 rounded text-center py-1">
+                                <p className="text-[10px] text-charcoal/40 uppercase font-semibold">Low</p>
+                                <p className="text-xs font-bold text-blue-600">{plan.roiLow}</p>
+                            </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded text-center py-1">
+                                <p className="text-[10px] text-charcoal/40 uppercase font-semibold">Medium</p>
+                                <p className="text-xs font-bold text-amber-600">{plan.roiMedium}</p>
+                            </div>
+                            <div className="bg-gray-50 border border-gray-100 rounded text-center py-1">
+                                <p className="text-[10px] text-charcoal/40 uppercase font-semibold">High</p>
+                                <p className="text-xs font-bold text-red-600">{plan.roiHigh}</p>
+                            </div>
+                        </div>
                         <p className="text-xs text-charcoal/40 mb-4 line-clamp-2">{plan.description}</p>
                         <div className="flex gap-2">
                             <button onClick={() => startEdit(plan)} className="text-xs text-amber-600 hover:text-amber-800 font-medium cursor-pointer">Edit</button>

@@ -60,6 +60,112 @@ router.get('/stats/overview', authMiddleware, adminMiddleware, async (req, res) 
     }
 });
 
+// Get all pending modification requests globally (admin)
+router.get('/modifications/pending', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const pendingPlans = await prisma.userPlan.findMany({
+            where: {
+                OR: [
+                    { pendingAmount: { not: null } },
+                    { pendingRiskLevel: { not: null } }
+                ]
+            },
+            include: {
+                user: { select: { id: true, name: true, email: true } },
+                plan: true
+            },
+            orderBy: { createdAt: 'asc' }
+        });
+        res.json(pendingPlans);
+    } catch (err) {
+        console.error('Get pending modifications error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin Approve a modification
+router.post('/modifications/:userPlanId/approve', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const userPlanId = parseInt(req.params.userPlanId);
+        const userPlan = await prisma.userPlan.findUnique({
+            where: { id: userPlanId },
+            include: { plan: true }
+        });
+
+        if (!userPlan || (!userPlan.pendingAmount && !userPlan.pendingRiskLevel)) {
+            return res.status(404).json({ error: 'Pending modification not found' });
+        }
+
+        await prisma.userPlan.update({
+            where: { id: userPlanId },
+            data: {
+                amount: userPlan.pendingAmount || userPlan.amount,
+                riskLevel: userPlan.pendingRiskLevel || userPlan.riskLevel,
+                pendingAmount: null,
+                pendingRiskLevel: null
+            }
+        });
+
+        res.json({ success: true, message: 'Modification approved and applied.' });
+    } catch (err) {
+        console.error('Approve modification error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Admin Reject a modification (Refunds difference)
+router.post('/modifications/:userPlanId/reject', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const userPlanId = parseInt(req.params.userPlanId);
+        const userPlan = await prisma.userPlan.findUnique({
+            where: { id: userPlanId },
+            include: { plan: true }
+        });
+
+        if (!userPlan || (!userPlan.pendingAmount && !userPlan.pendingRiskLevel)) {
+            return res.status(404).json({ error: 'Pending modification not found' });
+        }
+
+        const currentAmount = userPlan.amount;
+        const pendingAmount = userPlan.pendingAmount;
+        const difference = pendingAmount && pendingAmount > currentAmount ? pendingAmount - currentAmount : 0;
+
+        await prisma.$transaction(async (tx) => {
+            await tx.userPlan.update({
+                where: { id: userPlanId },
+                data: {
+                    pendingAmount: null,
+                    pendingRiskLevel: null
+                }
+            });
+
+            if (difference > 0) {
+                await tx.user.update({
+                    where: { id: userPlan.userId },
+                    data: {
+                        totalInvested: { decrement: difference },
+                        currentValue: { decrement: difference }
+                    }
+                });
+
+                await tx.transaction.create({
+                    data: {
+                        userId: userPlan.userId,
+                        type: 'REFUND',
+                        amount: difference,
+                        description: `Admin Rejected Mod - Refunded ${userPlan.plan.name} Plan Increase`
+                    }
+                });
+            }
+        });
+
+        res.json({ success: true, message: 'Modification rejected and refunded.' });
+    } catch (err) {
+        console.error('Reject modification error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // Get single user with full details (admin)
 router.get('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     try {
@@ -173,6 +279,19 @@ router.post('/:id/pay-return', authMiddleware, adminMiddleware, async (req, res)
                 where: { id: userId },
                 data: { currentValue: { increment: returnAmount } },
             });
+
+            // Promote any pending plan modifications to active now that the return is paid
+            if (activeUserPlan.pendingAmount || activeUserPlan.pendingRiskLevel) {
+                await tx.userPlan.update({
+                    where: { id: activeUserPlan.id },
+                    data: {
+                        amount: activeUserPlan.pendingAmount || activeUserPlan.amount,
+                        riskLevel: activeUserPlan.pendingRiskLevel || activeUserPlan.riskLevel,
+                        pendingAmount: null,
+                        pendingRiskLevel: null,
+                    }
+                });
+            }
 
             return invoice;
         });

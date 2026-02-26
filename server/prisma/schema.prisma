@@ -22,15 +22,23 @@ model User {
   transactions Transaction[]
   holdings     Holding[]
   invoices     Invoice[]
+  paymentMethods PaymentMethod[]
+
+  // Security & Account Recovery
+  isEmailVerified          Boolean   @default(false)
+  emailVerificationToken   String?   @unique
+  resetPasswordToken       String?   @unique
+  resetPasswordExpires     DateTime?
 }
 
 model Plan {
   id             Int      @id @default(autoincrement())
   name           String   @unique
   minInvestment  Float
-  expectedRoi    String
+  roiLow         String   @default("5-8%")
+  roiMedium      String   @default("8-12%")
+  roiHigh        String   @default("12-18%")
   duration       String
-  risk           String
   description    String
   features       String[]
   popular        Boolean  @default(false)
@@ -50,6 +58,11 @@ model UserPlan {
   amount        Float    // Dynamic amount user invested into this specific plan
   riskLevel     String   // Low, Medium, High
   status        String   @default("ACTIVE")
+  
+  // Pending modifications wait for the next ROI cycle to activate
+  pendingAmount    Float?
+  pendingRiskLevel String?
+
   createdAt     DateTime @default(now())
   
   @@unique([userId, planId])
@@ -103,6 +116,24 @@ model SiteContent {
   value     String
   section   String
   updatedAt DateTime @updatedAt
+}
+
+model PaymentMethod {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String   // BANK, MOBILE, CRYPTO
+  provider      String   // Bank Name, bKash, Nagad, USDT, etc
+  accountName   String   // Name on account
+  accountNumber String   // Bank Acct #, Phone Mobile #, Wallet Address
+  
+  // Specific to Bank Accounts
+  branchName    String?
+  routingNumber String?
+  swiftCode     String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 enum Role {

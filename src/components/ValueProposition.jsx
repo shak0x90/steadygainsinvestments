@@ -82,9 +82,9 @@ export default function ValueProposition() {
                             >
                                 <button
                                     onClick={() => setActiveId(isActive ? null : item.id)}
-                                    className={`w-full text-left py-6 px-6 flex items-center gap-6 transition-all duration-500 rounded-lg cursor-pointer group ${isActive
-                                            ? 'bg-emerald-brand text-white'
-                                            : 'text-white/80 hover:bg-white/5'
+                                    className={`w-full text-left py-4 px-4 sm:py-6 sm:px-6 flex items-center gap-6 transition-all duration-500 rounded-lg cursor-pointer group ${isActive
+                                        ? 'bg-emerald-brand text-white'
+                                        : 'text-white/80 hover:bg-white/5'
                                         }`}
                                 >
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300 ${isActive ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10'
@@ -104,7 +104,7 @@ export default function ValueProposition() {
                                     className={`overflow-hidden transition-all duration-500 ease-in-out ${isActive ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
                                         }`}
                                 >
-                                    <div className="px-6 pb-6 pl-[4.5rem]">
+                                    <div className="px-6 pb-6 pl-4 sm:pl-[4.5rem]">
                                         <p className="text-white/60 text-sm leading-relaxed max-w-2xl">
                                             {item.description}
                                         </p>
