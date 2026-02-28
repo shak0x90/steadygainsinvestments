@@ -44,6 +44,15 @@ const NAV_ITEMS = [
         )
     },
     {
+        label: 'Support',
+        path: '/dashboard/support',
+        icon: (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.38-.443 2.842-2.14 4.288-2.14 4.288s1.604-.153 3.32-.94a9.463 9.463 0 005.547 1.772z" />
+            </svg>
+        ),
+    },
+    {
         label: 'Transactions',
         path: '/dashboard/transactions',
         icon: (

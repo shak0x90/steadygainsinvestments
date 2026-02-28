@@ -27,12 +27,13 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 router.get('/stats/overview', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const [totalUsers, activeUsers, totalPlans] = await Promise.all([
-            prisma.user.count(),
-            prisma.user.count({ where: { active: true } }),
+            prisma.user.count({ where: { role: 'USER' } }),
+            prisma.user.count({ where: { role: 'USER', active: true } }),
             prisma.plan.count({ where: { active: true } }),
         ]);
 
         const users = await prisma.user.findMany({
+            where: { role: 'USER' },
             select: { totalInvested: true, currentValue: true },
         });
 

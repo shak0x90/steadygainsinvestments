@@ -8,8 +8,11 @@ import toast from 'react-hot-toast';
 
 export default function Withdraw() {
     const { user, login } = useAuth();
-    const { t, formatCurrency } = useLanguage();
+    const { t, formatCurrency, currencyInfo, rates } = useLanguage();
     const [activeTab, setActiveTab] = useState('withdraw');
+
+    // Convert entered amount from user's currency back to USD for API
+    const toUSD = (amount) => parseFloat(amount) / (rates[currencyInfo.code] || 1);
 
     // Withdraw state
     const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -60,8 +63,11 @@ export default function Withdraw() {
     const handleWithdraw = async (e) => {
         e.preventDefault();
         const amt = parseFloat(withdrawAmount);
-        if (!amt || amt < 10) return toast.error('Minimum withdrawal is $10');
-        if (amt > usableFunds) return toast.error(`You only have $${usableFunds.toFixed(2)} in usable funds`);
+        if (!amt || amt <= 0) return toast.error(`Minimum withdrawal is ${currencyInfo.symbol}10`);
+        const amtUSD = toUSD(amt);
+        const minWithdrawUSD = 10;
+        if (amtUSD < minWithdrawUSD) return toast.error(`Minimum withdrawal is ${formatCurrency(minWithdrawUSD)}`);
+        if (amtUSD > usableFunds) return toast.error(`You only have ${formatCurrency(usableFunds)} in usable funds`);
         if (!selectedMethodId) return toast.error('Please select a saved payment method');
 
         const selectedMethod = paymentMethods.find(m => m.id.toString() === selectedMethodId);
@@ -77,7 +83,7 @@ export default function Withdraw() {
 
         setLoadingWithdraw(true);
         try {
-            await api.createWithdrawal({ amount: amt, method: selectedMethod.provider, details: detailsStr });
+            await api.createWithdrawal({ amount: toUSD(parseFloat(withdrawAmount)), method: selectedMethod.provider, details: detailsStr });
             toast.success('Withdrawal request submitted!');
             setWithdrawAmount('');
             const updatedUser = await api.getMe();
@@ -92,11 +98,13 @@ export default function Withdraw() {
     const handleDeposit = async (e) => {
         e.preventDefault();
         const amt = parseFloat(depositAmount);
-        if (!amt || amt < 1) return toast.error('Minimum deposit is $1');
+        if (!amt || amt <= 0) return toast.error(`Please enter a valid amount`);
+        const amtUSD = toUSD(amt);
+        if (amtUSD < 1) return toast.error(`Minimum deposit is ${formatCurrency(1)}`);
 
         setLoadingDeposit(true);
         try {
-            await api.createDeposit({ amount: amt, method: depositMethod, details: depositRef || null });
+            await api.createDeposit({ amount: toUSD(amt), method: depositMethod, details: depositRef || null });
             toast.success('Deposit request submitted! Awaiting admin approval.');
             setDepositAmount('');
             setDepositRef('');
@@ -179,10 +187,10 @@ export default function Withdraw() {
                         <div className="bg-white rounded-xl p-6 border border-border/50">
                             <form onSubmit={handleWithdraw} className="space-y-5">
                                 <div>
-                                    <label className="text-xs font-semibold text-charcoal tracking-wider uppercase mb-1.5 block">Amount ($)</label>
-                                    <Input type="number" min="10" step="0.01" placeholder="0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="h-12 text-lg font-medium bg-gray-50 border-gray-200" required />
-                                    {withdrawAmount && parseFloat(withdrawAmount) > usableFunds && (
-                                        <p className="text-[10px] text-red-500 font-medium mt-1">Exceeds usable funds (${usableFunds.toFixed(2)})</p>
+                                    <label className="text-xs font-semibold text-charcoal tracking-wider uppercase mb-1.5 block">Amount ({currencyInfo.symbol})</label>
+                                    <Input type="number" min="0" step="0.01" placeholder="0.00" value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="h-12 text-lg font-medium bg-gray-50 border-gray-200" required />
+                                    {withdrawAmount && toUSD(parseFloat(withdrawAmount)) > usableFunds && (
+                                        <p className="text-[10px] text-red-500 font-medium mt-1">Exceeds usable funds ({formatCurrency(usableFunds)})</p>
                                     )}
                                 </div>
 
@@ -222,8 +230,8 @@ export default function Withdraw() {
                         <div className="bg-white rounded-xl p-6 border border-border/50">
                             <form onSubmit={handleDeposit} className="space-y-5">
                                 <div>
-                                    <label className="text-xs font-semibold text-charcoal tracking-wider uppercase mb-1.5 block">Deposit Amount ($)</label>
-                                    <Input type="number" min="1" step="0.01" placeholder="0.00" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="h-12 text-lg font-medium bg-gray-50 border-gray-200" required />
+                                    <label className="text-xs font-semibold text-charcoal tracking-wider uppercase mb-1.5 block">Deposit Amount ({currencyInfo.symbol})</label>
+                                    <Input type="number" min="0" step="0.01" placeholder="0.00" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="h-12 text-lg font-medium bg-gray-50 border-gray-200" required />
                                 </div>
 
                                 <div>

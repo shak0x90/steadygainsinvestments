@@ -26,6 +26,7 @@ import Portfolio from '@/pages/dashboard/Portfolio';
 import Transactions from '@/pages/dashboard/Transactions';
 import Settings from '@/pages/dashboard/Settings';
 import Withdraw from '@/pages/dashboard/Withdraw';
+import Support from '@/pages/dashboard/Support';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminOverview from '@/pages/admin/AdminOverview';
 import AdminUsers from '@/pages/admin/AdminUsers';
@@ -34,6 +35,8 @@ import AdminTransactions from '@/pages/admin/AdminTransactions';
 import AdminContent from '@/pages/admin/AdminContent';
 import AdminUserDetail from '@/pages/admin/AdminUserDetail';
 import AdminModifications from '@/pages/admin/AdminModifications';
+import AdminTickets from '@/pages/admin/AdminTickets';
+import AdminSettings from '@/pages/admin/AdminSettings';
 
 function LandingPage() {
   const [loading, setLoading] = useState(true);
@@ -86,6 +89,7 @@ function App() {
           <Route path="portfolio" element={<Portfolio />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="withdraw" element={<Withdraw />} />
+          <Route path="support" element={<Support />} />
           <Route path="settings" element={<Settings />} />
         </Route>
         <Route
@@ -103,6 +107,8 @@ function App() {
           <Route path="requests" element={<AdminModifications />} />
           <Route path="transactions" element={<AdminTransactions />} />
           <Route path="content" element={<AdminContent />} />
+          <Route path="tickets" element={<AdminTickets />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
       </Routes>
     </>

@@ -39,31 +39,43 @@ router.get('/invoices', authMiddleware, async (req, res) => {
     }
 });
 
-// Create transaction (legacy - kept for backward compat / admin use)
-router.post('/', authMiddleware, async (req, res) => {
+// Create transaction — Admin only (used for manual credits/adjustments)
+router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     try {
-        const { type, amount, description } = req.body;
+        const { type, amount, description, userId: targetUserId } = req.body;
+
+        if (!type || !amount) {
+            return res.status(400).json({ error: 'type and amount are required' });
+        }
+
+        const parsedAmount = parseFloat(amount);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+            return res.status(400).json({ error: 'amount must be a positive number' });
+        }
 
         if (type.toUpperCase() === 'WITHDRAWAL') {
             return res.status(400).json({ error: 'Use /withdraw endpoint for withdrawals' });
         }
 
+        // Admin can target any user, defaults to themselves if none provided
+        const ownerId = targetUserId ? parseInt(targetUserId) : req.user.id;
+
         const tx = await prisma.transaction.create({
             data: {
-                userId: req.user.id,
+                userId: ownerId,
                 type: type.toUpperCase(),
-                amount: parseFloat(amount),
-                description: description || `${type} of $${amount}`,
+                amount: parsedAmount,
+                description: description || `${type} of $${parsedAmount}`,
                 status: 'COMPLETED',
             },
         });
 
         if (type.toUpperCase() === 'DEPOSIT') {
             await prisma.user.update({
-                where: { id: req.user.id },
+                where: { id: ownerId },
                 data: {
-                    totalInvested: { increment: parseFloat(amount) },
-                    currentValue: { increment: parseFloat(amount) },
+                    totalInvested: { increment: parsedAmount },
+                    currentValue: { increment: parsedAmount },
                 }
             });
         }

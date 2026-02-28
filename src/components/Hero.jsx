@@ -1,8 +1,19 @@
+import { useState, useEffect } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
+import api from '@/utils/api';
 
 export default function Hero() {
     const [ref, isVisible] = useScrollReveal(0.1);
+    const { t, formatCurrency } = useLanguage();
+    const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80');
+
+    useEffect(() => {
+        api.getContentBySection('images').then((data) => {
+            if (data?.hero_image) setHeroImage(data.hero_image);
+        }).catch(() => { });
+    }, []);
 
     return (
         <section className="relative min-h-screen flex items-center overflow-hidden bg-cream" id="hero">
@@ -15,25 +26,15 @@ export default function Hero() {
                     {/* Left content */}
                     <div className={`animate-fade-up ${isVisible ? 'visible' : ''}`}>
                         <p className="text-emerald-brand font-medium text-sm tracking-[0.15em] uppercase mb-6">
-                            ── Investing made simple for everyone
+                            ── {t('hero.tagline')}
                         </p>
 
                         <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] text-charcoal mb-8">
-                            Start With{' '}
-                            <span className="text-emerald-brand">$100</span>,{' '}
-                            Build Your{' '}
-                            <span className="relative inline-block">
-                                Future.
-                                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 8" fill="none">
-                                    <path d="M2 6 Q100 -2 198 6" stroke="#0a7c42" strokeWidth="2.5" strokeLinecap="round" opacity="0.4" />
-                                </svg>
-                            </span>
+                            {t('hero.title')}
                         </h1>
 
                         <p className="text-lg text-charcoal/60 leading-relaxed max-w-lg mb-10">
-                            No huge savings needed. No confusing jargon. Just a simple,
-                            transparent way for everyday people to grow their money
-                            with steady, reliable returns.
+                            {t('hero.subtitle')}
                         </p>
 
                         <div className="flex flex-wrap gap-4">
@@ -43,7 +44,7 @@ export default function Hero() {
                                 className="bg-emerald-brand hover:bg-emerald-dark text-white rounded-full px-8 text-base shadow-lg shadow-emerald-brand/25 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-brand/30 hover:-translate-y-0.5"
                             >
                                 <a href="#about">
-                                    Start Investing
+                                    {t('hero.getStarted')}
                                     <svg className="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                     </svg>
@@ -55,16 +56,16 @@ export default function Hero() {
                                 size="lg"
                                 className="border-charcoal/20 text-charcoal hover:border-emerald-brand hover:text-emerald-brand rounded-full px-8 text-base transition-all duration-300"
                             >
-                                <a href="#track-record">See How It Works</a>
+                                <a href="#track-record">{t('hero.viewPlans')}</a>
                             </Button>
                         </div>
 
                         {/* Mini stats */}
                         <div className={`mt-14 flex flex-wrap gap-6 sm:gap-10 animate-fade-up stagger-3 ${isVisible ? 'visible' : ''}`}>
                             {[
-                                { value: '50K+', label: 'Happy Investors' },
-                                { value: '$100', label: 'Min. Investment' },
-                                { value: '95%', label: 'Satisfaction Rate' },
+                                { value: '50K+', label: t('hero.activeInvestors') },
+                                { value: formatCurrency(100), label: t('hero.totalInvested') },
+                                { value: '95%', label: t('hero.avgReturn') },
                             ].map((stat) => (
                                 <div key={stat.label}>
                                     <p className="font-display text-2xl font-bold text-charcoal">{stat.value}</p>
@@ -78,7 +79,7 @@ export default function Hero() {
                     <div className={`relative animate-fade-up stagger-2 ${isVisible ? 'visible' : ''}`}>
                         <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-charcoal/10">
                             <img
-                                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80"
+                                src={heroImage.startsWith('/uploads') ? (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') + heroImage : heroImage) : heroImage}
                                 alt="Diverse group of people planning their financial future"
                                 className="w-full h-64 sm:h-80 lg:h-[500px] object-cover"
                             />

@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.js';
 import plansRoutes from './routes/plans.js';
 import transactionsRoutes from './routes/transactions.js';
@@ -10,6 +12,8 @@ import portfolioRoutes from './routes/portfolio.js';
 import usersRoutes from './routes/users.js';
 import contentRoutes from './routes/content.js';
 import paymentMethodsRoutes from './routes/payment-methods.js';
+import uploadRoutes from './routes/upload.js';
+import ticketsRoutes from './routes/tickets.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,21 +22,38 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const isProd = process.env.NODE_ENV === 'production';
 
-// Middleware
+// Security Middleware
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// Rate limiting — Auth routes only (20 attempts per 15 min per IP)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    message: { error: 'Too many requests, please try again later' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// CORS
 app.use(cors(isProd && process.env.APP_URL
     ? { origin: process.env.APP_URL }
     : {}
 ));
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
-// Routes
-app.use('/api/auth', authRoutes);
+// Serve uploaded local images
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
+// Routes (auth with rate limiter)
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/plans', plansRoutes);
 app.use('/api/transactions', transactionsRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/payment-methods', paymentMethodsRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/tickets', ticketsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

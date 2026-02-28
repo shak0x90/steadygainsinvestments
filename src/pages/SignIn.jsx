@@ -199,12 +199,7 @@ export default function SignIn() {
                         </Button>
                     </form>
 
-                    {/* Demo credentials hint */}
-                    <div className="mt-6 p-3 bg-emerald-brand/5 border border-emerald-brand/20 rounded-lg">
-                        <p className="text-xs text-emerald-brand font-medium mb-1">Demo Credentials</p>
-                        <p className="text-xs text-charcoal/50">User: <span className="font-mono text-charcoal/70">demo@steadygains.com</span> / <span className="font-mono text-charcoal/70">demo123</span></p>
-                        <p className="text-xs text-charcoal/50">Admin: <span className="font-mono text-charcoal/70">admin@steadygains.com</span> / <span className="font-mono text-charcoal/70">admin123</span></p>
-                    </div>
+
 
                     <p className="mt-8 text-center text-sm text-charcoal/50">
                         Don&apos;t have an account?{' '}

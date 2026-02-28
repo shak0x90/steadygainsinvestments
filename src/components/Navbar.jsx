@@ -5,19 +5,16 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 const NAV_LINKS = [
-    { label: 'About', href: '#about' },
-    { label: 'How It Works', href: '#proposition' },
-    { label: 'Plans', href: '#plans' },
-    { label: 'Track Record', href: '#track-record' },
-    { label: 'Team', href: '#team' },
-    { label: 'News', href: '#news' },
+    { key: 'nav.about', href: '#about' },
+    { key: 'nav.plans', href: '#plans' },
+    { key: 'nav.contact', href: '#contact' },
 ];
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const { user } = useAuth();
-    const { locale, setLocale } = useLanguage();
+    const { locale, setLocale, t } = useLanguage();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 50);
@@ -80,11 +77,11 @@ export default function Navbar() {
                 <div className="hidden md:flex items-center gap-8">
                     {NAV_LINKS.map((link) => (
                         <a
-                            key={link.label}
+                            key={link.key}
                             href={link.href}
                             className="text-sm font-medium text-charcoal/70 hover:text-emerald-brand transition-colors duration-300 relative after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-[2px] after:bg-emerald-brand after:transition-all after:duration-300 hover:after:w-full"
                         >
-                            {link.label}
+                            {t(link.key)}
                         </a>
                     ))}
                 </div>
@@ -105,7 +102,7 @@ export default function Navbar() {
                             asChild
                             className="bg-emerald-brand hover:bg-emerald-dark text-white rounded-full px-6"
                         >
-                            <Link to="/dashboard">My Dashboard</Link>
+                            <Link to="/dashboard">{t('nav.dashboard')}</Link>
                         </Button>
                     ) : (
                         <>
@@ -114,13 +111,13 @@ export default function Navbar() {
                                 variant="ghost"
                                 className="text-charcoal/70 hover:text-emerald-brand rounded-full px-5"
                             >
-                                <Link to="/signin">Sign In</Link>
+                                <Link to="/signin">{t('nav.signIn')}</Link>
                             </Button>
                             <Button
                                 asChild
                                 className="bg-emerald-brand hover:bg-emerald-dark text-white rounded-full px-6"
                             >
-                                <Link to="/signup">Get Started</Link>
+                                <Link to="/signup">{t('nav.signUp')}</Link>
                             </Button>
                         </>
                     )}
@@ -146,12 +143,12 @@ export default function Navbar() {
                 <div className="px-6 py-4 flex flex-col gap-3">
                     {NAV_LINKS.map((link) => (
                         <a
-                            key={link.label}
+                            key={link.key}
                             href={link.href}
                             onClick={() => setMobileOpen(false)}
                             className="text-base font-medium text-charcoal/80 hover:text-emerald-brand py-2 transition-colors"
                         >
-                            {link.label}
+                            {t(link.key)}
                         </a>
                     ))}
                     {user ? (
@@ -159,7 +156,7 @@ export default function Navbar() {
                             asChild
                             className="bg-emerald-brand hover:bg-emerald-dark text-white rounded-full mt-2"
                         >
-                            <Link to="/dashboard" onClick={() => setMobileOpen(false)}>My Dashboard</Link>
+                            <Link to="/dashboard" onClick={() => setMobileOpen(false)}>{t('nav.dashboard')}</Link>
                         </Button>
                     ) : (
                         <>
@@ -168,13 +165,13 @@ export default function Navbar() {
                                 variant="outline"
                                 className="border-charcoal/20 text-charcoal rounded-full mt-2"
                             >
-                                <Link to="/signin" onClick={() => setMobileOpen(false)}>Sign In</Link>
+                                <Link to="/signin" onClick={() => setMobileOpen(false)}>{t('nav.signIn')}</Link>
                             </Button>
                             <Button
                                 asChild
                                 className="bg-emerald-brand hover:bg-emerald-dark text-white rounded-full"
                             >
-                                <Link to="/signup" onClick={() => setMobileOpen(false)}>Get Started</Link>
+                                <Link to="/signup" onClick={() => setMobileOpen(false)}>{t('nav.signUp')}</Link>
                             </Button>
                         </>
                     )}

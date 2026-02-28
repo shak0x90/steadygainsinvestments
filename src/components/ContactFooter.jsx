@@ -1,40 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-
-const FOOTER_LINKS = [
-    {
-        title: 'Company',
-        links: [
-            { label: 'About', href: '#about' },
-            { label: 'How It Works', href: '#proposition' },
-            { label: 'Track Record', href: '#track-record' },
-            { label: 'Team', href: '#team' },
-            { label: 'News', href: '#news' },
-            { label: 'Terms & Conditions', href: '/terms' },
-        ],
-    },
-    {
-        title: 'Contact',
-        links: [
-            { label: 'Email: hello@steadygains.com', href: 'mailto:hello@steadygains.com' },
-            { label: 'Phone: (555) 123-4567', href: 'tel:+15551234567' },
-            { label: 'New York, NY 10001', href: '#' },
-        ],
-    },
-];
+import api from '@/utils/api';
 
 export default function ContactFooter() {
     const [ref, isVisible] = useScrollReveal(0.1);
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: '', company: '', phone: '', email: '', comments: '',
     });
+    const [contactInfo, setContactInfo] = useState({
+        email: 'hello@steadygains.com',
+        phone: '(555) 123-4567',
+        address: 'New York, NY 10001',
+        linkedin: '#',
+        twitter: '#',
+    });
+
+    useEffect(() => {
+        api.getContentBySection('contact').then((data) => {
+            if (data) {
+                setContactInfo(prev => ({
+                    email: data.contact_email || prev.email,
+                    phone: data.contact_phone || prev.phone,
+                    address: data.contact_address || prev.address,
+                    linkedin: data.social_linkedin || prev.linkedin,
+                    twitter: data.social_twitter || prev.twitter,
+                }));
+            }
+        }).catch(() => { });
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    const FOOTER_LINKS = [
+        {
+            title: t('nav.about'),
+            links: [
+                { label: t('nav.about'), href: '#about' },
+                { label: t('nav.plans'), href: '#plans' },
+                { label: t('nav.contact'), href: '#contact' },
+                { label: 'Terms & Conditions', href: '/terms' },
+            ],
+        },
+        {
+            title: t('contact.title'),
+            links: [
+                { label: `${t('contact.email')}: ${contactInfo.email}`, href: `mailto:${contactInfo.email}` },
+                { label: `${t('contact.phone')}: ${contactInfo.phone}`, href: `tel:${contactInfo.phone.replace(/[^+\d]/g, '')}` },
+                { label: contactInfo.address, href: '#' },
+            ],
+        },
+    ];
 
     return (
         <>
@@ -219,11 +241,19 @@ export default function ContactFooter() {
                             © {new Date().getFullYear()} Steady Gains Investments. All rights reserved.
                         </p>
                         <div className="flex gap-4">
-                            {['LinkedIn', 'Twitter', 'Email'].map((s) => (
-                                <a key={s} href="#" className="text-white/30 text-xs hover:text-emerald-light transition-colors">
-                                    {s}
+                            {contactInfo.linkedin !== '#' && (
+                                <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="text-white/30 text-xs hover:text-emerald-light transition-colors">
+                                    LinkedIn
                                 </a>
-                            ))}
+                            )}
+                            {contactInfo.twitter !== '#' && (
+                                <a href={contactInfo.twitter} target="_blank" rel="noopener noreferrer" className="text-white/30 text-xs hover:text-emerald-light transition-colors">
+                                    Twitter
+                                </a>
+                            )}
+                            <a href={`mailto:${contactInfo.email}`} className="text-white/30 text-xs hover:text-emerald-light transition-colors">
+                                Email
+                            </a>
                         </div>
                     </div>
                 </div>

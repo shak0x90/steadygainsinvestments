@@ -1,10 +1,12 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useLanguage } from '@/context/LanguageContext';
 import { investmentPlans } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 export default function PlansSection() {
     const [ref, isVisible] = useScrollReveal(0.1);
+    const { t, formatCurrency } = useLanguage();
 
     return (
         <section id="plans" className="py-24 lg:py-32 bg-cream relative overflow-hidden">
@@ -16,15 +18,12 @@ export default function PlansSection() {
                 <div className={`text-center mb-16 animate-fade-up ${isVisible ? 'visible' : ''}`}>
                     <div className="flex items-center justify-center gap-3 mb-4">
                         <div className="w-8 h-[2px] bg-emerald-brand" />
-                        <span className="text-sm font-medium text-emerald-brand tracking-wider uppercase">Plans for Every Budget</span>
+                        <span className="text-sm font-medium text-emerald-brand tracking-wider uppercase">{t('plansSection.subtitle')}</span>
                         <div className="w-8 h-[2px] bg-emerald-brand" />
                     </div>
                     <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-charcoal leading-tight mb-4">
-                        Start with <span className="text-emerald-brand">$100</span>, grow at your pace
+                        {t('plansSection.title')}
                     </h2>
-                    <p className="text-charcoal/50 text-base max-w-xl mx-auto">
-                        No matter your budget, we have a plan that fits. Pick one and start building your future today.
-                    </p>
                 </div>
 
                 {/* Plans Grid */}
@@ -40,7 +39,7 @@ export default function PlansSection() {
                             {/* Most Popular badge */}
                             {plan.popular && (
                                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-brand text-white text-xs font-bold px-4 py-1 rounded-full shadow-md">
-                                    ⭐ Most Popular
+                                    ⭐ {t('plansSection.mostPopular')}
                                 </div>
                             )}
 

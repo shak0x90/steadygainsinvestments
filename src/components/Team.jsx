@@ -1,34 +1,30 @@
+import { useState, useEffect } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { useLanguage } from '@/context/LanguageContext';
+import api from '@/utils/api';
 
-const TEAM_MEMBERS = [
-    {
-        name: 'Alexander Reed',
-        title: 'Founder & CEO',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
-        bio: 'Started Steady Gains to make investing accessible for everyone.',
-    },
-    {
-        name: 'Sophia Chen',
-        title: 'Head of Investments',
-        image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
-        bio: '15 years making smart investment decisions for everyday people.',
-    },
-    {
-        name: 'Marcus Johnson',
-        title: 'Head of Customer Success',
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80',
-        bio: 'Obsessed with making sure every investor feels supported.',
-    },
-    {
-        name: 'Elena Vasquez',
-        title: 'Head of Education',
-        image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80',
-        bio: 'Helps new investors understand their journey, step by step.',
-    },
+const FALLBACK_TEAM = [
+    { name: 'Alexander Reed', title: 'Founder & CEO', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80', bio: 'Started Steady Gains to make investing accessible for everyone.' },
+    { name: 'Sophia Chen', title: 'Head of Investments', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80', bio: '15 years making smart investment decisions for everyday people.' },
+    { name: 'Marcus Johnson', title: 'Head of Customer Success', image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80', bio: 'Obsessed with making sure every investor feels supported.' },
+    { name: 'Elena Vasquez', title: 'Head of Education', image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80', bio: 'Helps new investors understand their journey, step by step.' },
 ];
 
 export default function Team() {
     const [ref, isVisible] = useScrollReveal(0.1);
+    const { t } = useLanguage();
+    const [members, setMembers] = useState(FALLBACK_TEAM);
+
+    useEffect(() => {
+        api.getContentBySection('team').then((data) => {
+            if (data?.team_members) {
+                try {
+                    const parsed = JSON.parse(data.team_members);
+                    if (Array.isArray(parsed) && parsed.length > 0) setMembers(parsed);
+                } catch { }
+            }
+        }).catch(() => { });
+    }, []);
 
     return (
         <section id="team" className="py-24 lg:py-32 bg-charcoal relative overflow-hidden">
@@ -55,13 +51,13 @@ export default function Team() {
 
                     {/* Right grid */}
                     <div className="grid sm:grid-cols-2 gap-4">
-                        {TEAM_MEMBERS.map((member, i) => (
+                        {members.map((member, i) => (
                             <div
-                                key={member.name}
+                                key={member.name + i}
                                 className={`animate-fade-up stagger-${i + 1} ${isVisible ? 'visible' : ''} relative group rounded-xl overflow-hidden cursor-pointer`}
                             >
                                 <img
-                                    src={member.image}
+                                    src={member.image.startsWith('/uploads') ? (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') + member.image : member.image) : member.image}
                                     alt={member.name}
                                     className="w-full h-56 sm:h-72 object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                                 />

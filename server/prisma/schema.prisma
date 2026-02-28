@@ -23,6 +23,7 @@ model User {
   holdings     Holding[]
   invoices     Invoice[]
   paymentMethods PaymentMethod[]
+  tickets      Ticket[]
 
   // Security & Account Recovery
   isEmailVerified          Boolean   @default(false)
@@ -136,6 +137,19 @@ model PaymentMethod {
   updatedAt     DateTime @updatedAt
 }
 
+model Ticket {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject     String
+  message     String
+  attachment  String?
+  status      TicketStatus @default(OPEN)
+  adminReply  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
 enum Role {
   USER
   ADMIN
@@ -151,4 +165,11 @@ enum TxStatus {
   PENDING
   COMPLETED
   REJECTED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
 }

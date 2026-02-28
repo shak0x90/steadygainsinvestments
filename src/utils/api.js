@@ -80,6 +80,32 @@ const api = {
     getContent: () => request('/content'),
     getContentBySection: (section) => request(`/content/${section}`),
     updateContent: (items) => request('/content', { method: 'PUT', body: JSON.stringify({ items }) }),
+
+    // Upload & Tickets
+    uploadFile: async (file) => {
+        const token = getToken();
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const res = await fetch(`${API_BASE}/upload`, {
+            method: 'POST',
+            headers: {
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        return data; // { url: '...' }
+    },
+
+    // User Tickets
+    getMyTickets: () => request('/tickets/my'),
+    createTicket: (data) => request('/tickets', { method: 'POST', body: JSON.stringify(data) }),
+
+    // Admin Tickets
+    getAllTickets: (status) => request(`/tickets${status ? `?status=${status}` : ''}`),
+    replyTicket: (id, data) => request(`/tickets/${id}/reply`, { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 export default api;
