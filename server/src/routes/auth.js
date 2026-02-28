@@ -75,6 +75,10 @@ router.post('/signin', async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
+        if (!user.isEmailVerified) {
+            return res.status(403).json({ error: 'Please verify your email address to log in' });
+        }
+
         const valid = await bcrypt.compare(password, user.password);
         if (!valid) {
             return res.status(401).json({ error: 'Invalid email or password' });
