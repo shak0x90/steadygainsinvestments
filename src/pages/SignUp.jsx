@@ -11,6 +11,7 @@ export default function SignUp() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
     const { signup } = useAuth();
     const navigate = useNavigate();
@@ -36,8 +37,8 @@ export default function SignUp() {
 
         setLoading(true);
         try {
-            await signup(name, email, password);
-            navigate('/dashboard');
+            const res = await signup(name, email, password);
+            setSuccessMsg(res.message || 'Registration successful. Please check your email to verify your account.');
         } catch (err) {
             setError(err.message);
         } finally {
@@ -168,96 +169,115 @@ export default function SignUp() {
                     <h1 className="font-display text-2xl font-bold text-charcoal mb-2">Create your account</h1>
                     <p className="text-charcoal/50 text-sm mb-8">Start investing in under 2 minutes</p>
 
-                    {error && (
-                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                            {error}
+                    {successMsg ? (
+                        <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl text-center shadow-lg shadow-emerald-brand/10">
+                            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-emerald-800 font-bold text-lg mb-2">Check your email</h3>
+                            <p className="text-emerald-700 text-sm leading-relaxed mb-6">{successMsg}</p>
+                            <Link to="/signin">
+                                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white w-full shadow-md">
+                                    Go to Sign In
+                                </Button>
+                            </Link>
                         </div>
+                    ) : (
+                        <>
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                                    {error}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <div>
+                                    <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Full Name</label>
+                                    <Input
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
+                                        placeholder="John Doe"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Email</label>
+                                    <Input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
+                                        placeholder="you@example.com"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Password</label>
+                                        <Input
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
+                                            placeholder="••••••••"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Confirm</label>
+                                        <Input
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
+                                            placeholder="••••••••"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3 py-2">
+                                    <input
+                                        type="checkbox"
+                                        id="terms"
+                                        checked={agreeTerms}
+                                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                                        className="mt-1 w-4 h-4 rounded border-border/50 text-emerald-brand focus:ring-emerald-brand cursor-pointer"
+                                    />
+                                    <label htmlFor="terms" className="text-sm text-charcoal/60 leading-tight">
+                                        I have completely read, understood, and agree to the Steady Gains{' '}
+                                        <Link to="/terms" target="_blank" className="font-semibold text-emerald-brand hover:underline">
+                                            Terms and Conditions
+                                        </Link>.
+                                    </label>
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-emerald-brand hover:bg-emerald-dark text-white rounded-lg shadow-lg shadow-emerald-brand/20 transition-all duration-300 hover:-translate-y-0.5"
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center gap-2">
+                                            <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                                            Creating account...
+                                        </span>
+                                    ) : 'Create Free Account'}
+                                </Button>
+                            </form>
+
+                            <p className="mt-8 text-center text-sm text-charcoal/50">
+                                Already have an account?{' '}
+                                <Link to="/signin" className="text-emerald-brand font-medium hover:underline">
+                                    Sign in
+                                </Link>
+                            </p>
+                        </>
                     )}
-
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
-                            <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Full Name</label>
-                            <Input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
-                                placeholder="John Doe"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Email</label>
-                            <Input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
-                                placeholder="you@example.com"
-                                required
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Password</label>
-                                <Input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="text-xs text-charcoal/50 mb-1.5 block tracking-wider uppercase">Confirm</label>
-                                <Input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="bg-white border-border/50 focus:border-emerald-brand rounded-lg"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-start gap-3 py-2">
-                            <input
-                                type="checkbox"
-                                id="terms"
-                                checked={agreeTerms}
-                                onChange={(e) => setAgreeTerms(e.target.checked)}
-                                className="mt-1 w-4 h-4 rounded border-border/50 text-emerald-brand focus:ring-emerald-brand cursor-pointer"
-                            />
-                            <label htmlFor="terms" className="text-sm text-charcoal/60 leading-tight">
-                                I have completely read, understood, and agree to the Steady Gains{' '}
-                                <Link to="/terms" target="_blank" className="font-semibold text-emerald-brand hover:underline">
-                                    Terms and Conditions
-                                </Link>.
-                            </label>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-emerald-brand hover:bg-emerald-dark text-white rounded-lg shadow-lg shadow-emerald-brand/20 transition-all duration-300 hover:-translate-y-0.5"
-                        >
-                            {loading ? (
-                                <span className="flex items-center gap-2">
-                                    <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                                    Creating account...
-                                </span>
-                            ) : 'Create Free Account'}
-                        </Button>
-                    </form>
-
-                    <p className="mt-8 text-center text-sm text-charcoal/50">
-                        Already have an account?{' '}
-                        <Link to="/signin" className="text-emerald-brand font-medium hover:underline">
-                            Sign in
-                        </Link>
-                    </p>
                 </div>
             </div>
         </div>

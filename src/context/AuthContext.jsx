@@ -37,13 +37,8 @@ export function AuthProvider({ children }) {
     };
 
     const signup = async (name, email, password) => {
-        const { user: userData, token } = await api.signup(name, email, password);
-        localStorage.setItem('sg_token', token);
-        setUser({
-            ...userData,
-            avatar: userData.name?.split(' ').map(n => n[0]).join('').toUpperCase(),
-        });
-        return userData;
+        const response = await api.signup(name, email, password);
+        return response; // Just return the message, don't log in
     };
 
     const logout = () => {

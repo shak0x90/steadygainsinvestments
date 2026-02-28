@@ -46,13 +46,9 @@ router.post('/signup', async (req, res) => {
         // Send verification email (logs to console in dev)
         await sendVerificationEmail(user, verificationToken);
 
-        const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
-
-        res.status(201).json({ user, token });
+        res.status(201).json({
+            message: 'Registration successful. Please check your email to verify your account.'
+        });
     } catch (err) {
         console.error('Signup error:', err);
         res.status(500).json({ error: 'Server error' });
